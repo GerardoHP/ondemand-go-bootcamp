@@ -12,9 +12,10 @@ const (
 )
 
 type Pokemon struct {
-	ID   int
-	Name string
-	Url  string
+	ID    int
+	Name  string
+	Url   string
+	Image string
 }
 
 func (p Pokemon) String() string {
@@ -26,19 +27,21 @@ func FileName() string { return fileName }
 
 func ToPokemon(s string) (*Pokemon, error) {
 	str := strings.Split(s, ",")
-	if len(str) != 3 {
+	if len(str) != 4 {
 		return &Pokemon{}, errors.New("it's not a pokemon")
 	}
 
-	id, err := strconv.ParseInt(str[0], 10, 8)
+	id, err := strconv.ParseInt(str[0], 10, 64)
 
 	if err != nil {
-		panic("id is not int")
+		fmt.Println(s, str[0])
+		panic(err)
 	}
 
 	return &Pokemon{
-		ID:   int(id),
-		Name: strings.Trim(str[1], " "),
-		Url:  strings.Trim(str[2], " "),
+		ID:    int(id),
+		Name:  strings.Trim(str[1], " "),
+		Url:   strings.Trim(str[2], " "),
+		Image: strings.Trim(str[3], " "),
 	}, nil
 }
