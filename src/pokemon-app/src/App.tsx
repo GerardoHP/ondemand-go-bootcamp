@@ -1,8 +1,16 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
 function App() {
+
+  const [counter, setCounter] = useState(0)
+
+  const increaseCounter = () => {
+    let newCounter = counter + 1;
+    setCounter(newCounter)
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -18,6 +26,10 @@ function App() {
         >
           Learn React
         </a>
+
+        <p>Has dado {counter} veces click! </p>
+
+        <button name="button" onClick={increaseCounter}>Boton</button>
       </header>
     </div>
   );
