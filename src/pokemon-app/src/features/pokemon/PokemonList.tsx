@@ -3,21 +3,22 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import './Pokemon.css';
 import { useState, useEffect } from "react";
 import { Pokemon } from './Pokemon';
+import { Pokemon as PokemonInterface } from "../../app/models/Pokemon";
 
 export function PokemonList({ pokemons }: any) {
 
     const [selected, setSelected] = useState(-1);
-    const [selectedPokemon, setSelectedPokemon] = useState<{ id: number, name: string, image: string }>({ id: 0, name: '', image: '' });
-    const [filterdPokemons, setFilteredPokemons] = useState(pokemons);
+    const [selectedPokemon, setSelectedPokemon] = useState<PokemonInterface>({ Id: 0, Name: '', Image: '', Url: '' });
+    const [filterdPokemons, setFilteredPokemons] = useState<PokemonInterface[]>(pokemons);
 
     const selectPokemon = (newId: number) => {
         setSelected(newId);
-        const newSelectedPokemon = filterdPokemons.find(({ id }: { id: number }) => id === newId);
+        const newSelectedPokemon: PokemonInterface = filterdPokemons.find(({ Id }: PokemonInterface) => Id === newId) ?? { Id: 0, Name: '', Image: '', Url: '' };
         setSelectedPokemon(newSelectedPokemon);
     };
 
     const searchFilter = ({ target }: { target: { value: string } }) => {
-        const newFilteredPokemons = pokemons.filter((pok: { name: string }) => {            
+        const newFilteredPokemons = pokemons.filter((pok: { name: string }) => {
             return pok.name.toLocaleLowerCase().includes(target.value.toLocaleLowerCase());
         });
 
@@ -28,7 +29,7 @@ export function PokemonList({ pokemons }: any) {
         if (filterdPokemons.length === 0) {
             setFilteredPokemons(pokemons);
         }
-    }, pokemons)
+    }, [pokemons])
 
     return (<div className='row' style={{ height: '100vh' }}>
         <div className="col-md-2 offset-md-1 h-100 d-inline-block PokemonContainer" >
@@ -38,8 +39,8 @@ export function PokemonList({ pokemons }: any) {
             </div>
             <div className='overflow-auto h-90'>
                 <div className='list-group'>
-                    {filterdPokemons.map(({ id, name, image }: { id: number, name: string, image: string }) => {
-                        return <button className={`list-group-item list-group-item-action ${id === selected ? 'active' : ''}`} onClick={() => selectPokemon(id)} key={id}>{name}</button>
+                    {filterdPokemons.map(({ Id, Name }: PokemonInterface) => {
+                        return <button className={`list-group-item list-group-item-action ${Id === selected ? 'active' : ''}`} onClick={() => selectPokemon(Id)} key={Id}>{Name}</button>
                     })}
                 </div>
             </div>

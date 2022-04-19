@@ -17,6 +17,7 @@ export const pokemonDetailsSlice = createSlice({
 // export const fetchPokemonDetail = (id: number, ) => {
 //   return async (dispatch, getState, extraArgument) => {
 //     const s = getState();
+//   // logica para traer el detalle y mostrarlo
 //   };
 // };
 

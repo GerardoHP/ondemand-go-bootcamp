@@ -1,7 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import { Pokemon } from "../../app/models/Pokemon";
 
-const initialState = {
+interface IState {
+  pokemons: Pokemon[];
+  status: string;
+  error: string | null;
+}
+
+const initialState: IState = {
   pokemons: [],
   status: "idle",
   error: null,
@@ -11,24 +18,32 @@ export const pokemonSlice = createSlice({
   name: "pokemons",
   initialState,
   reducers: {
-    getPokemons: (
-      state: {
-        pokemons: { id: number; name: string; image: string }[];
-      },
-      action: PayloadAction<{ id: number; name: string; image: string }[]>
-    ) => {
-      action.payload.map((pokemon: any) => {
-        const { ID, Name, Image } = pokemon;
-        state.pokemons.push({ id: ID, name: Name, image: Image });
-      });
+    setPokemons: (state: IState, action: PayloadAction<any[]>) => {
+      // state.pokemons = action.payload;
+      state.pokemons = action.payload.map(
+        ({
+          ID,
+          Name,
+          Url,
+          Image,
+        }: {
+          ID: number;
+          Name: string;
+          Url: string;
+          Image: string;
+        }) => {
+          // const { id, name, image, url } = pokemon;
+          // state.pokemons.push({ id, name, image, url });
+          return { Id: ID, Name, Url, Image };
+        }
+      );
     },
-    addPokemon: (state: {
-      pokemons: { id: any; name: string; image: string }[];
-    }) => {
+    addPokemon: (state: { pokemons: Pokemon[] }) => {
       state.pokemons.push({
-        id: state.pokemons.length,
-        name: `Pokemon ${state.pokemons.length}`,
-        image: "asdf",
+        Id: state.pokemons.length,
+        Name: `Pokemon ${state.pokemons.length}`,
+        Image: "asdf",
+        Url: "",
       });
     },
   },
@@ -44,7 +59,7 @@ export const fetchAllPokemons = () => {
       const s: any = getState();
       if (s && s.pokemon.pokemons.length === 0) {
         const pokemons = await axios.get(extraArgument.api.url);
-        dispatch(getPokemons(pokemons.data));
+        dispatch(setPokemons(pokemons.data));
       }
     } catch (err) {
       console.log(err);
@@ -52,7 +67,7 @@ export const fetchAllPokemons = () => {
   };
 };
 
-export const { addPokemon, getPokemons } = pokemonSlice.actions;
+export const { addPokemon, setPokemons } = pokemonSlice.actions;
 
 export const selectPokemonCount = (state: any): number =>
   state.pokemon.pokemons.length;
