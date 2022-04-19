@@ -1,65 +1,35 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { pokemonSlice, selectPokemonCount, addPokemon, selectAllPokemons } from './features/pokemon/pokemonSlice';
+import { pokemonSlice, selectPokemonCount, addPokemon, selectAllPokemons, fetchAllPokemons } from './features/pokemon/pokemonSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { Pokemon } from './app/models/Pokemon';
+import { Pokemon } from './features/pokemon/Pokemon'
+import { PokemonList } from './features/pokemon/PokemonList';
 
 function App() {
 
   const [counter, setCounter] = useState(0)
 
-  const pokemonCount = useSelector(selectPokemonCount);
-  console.log(pokemonCount);
-  const pokemons = useSelector(selectAllPokemons);
-  console.log(pokemons);
+  const pokemonCount: number = useSelector(selectPokemonCount);
+  const pokemons:any[] = useSelector(selectAllPokemons);
+  const pokemonsFilter = useSelector((state:
+    {
+      pokemon: {
+        pokemons: { id: any; name: string; image: string }[]
+      }
+    }): number =>
+    state.pokemon.pokemons.filter((p) => p.id === 1).length)
   const dispatch = useDispatch();
 
-  const increaseCounter = () => {
-    let newCounter = counter + 1;
-    setCounter(newCounter);
-
-    dispatch(addPokemon())
-  };
+  useEffect(() => {
+    if (pokemonCount === 0) {
+      dispatch(fetchAllPokemons());
+    }
+  });
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-
-        <p>Hay {pokemonCount} pokemons</p>
-        {/* <p>Hay {pokemons} pokemons</p> */}
-
-        {pokemons.map((pok: any) => { return pokemon(pok) })}
-
-        <p>Has dado {counter} veces click! </p>
-
-        <button name="button" onClick={increaseCounter}>Boton</button>
-      </header>
-    </div>
-  );
-}
-
-
-
-const pokemon = ({ id = 0, name = '' }) => {
-  return (
-    <div key={id}>
-      <p>id:</p>
-      <p>{id}</p>
-      <p>name:</p>
-      <p>{name}</p>
+      <PokemonList pokemons={pokemons}></PokemonList>
     </div>
   );
 }

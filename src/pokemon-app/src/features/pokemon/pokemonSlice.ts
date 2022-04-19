@@ -1,40 +1,61 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
-import { Pokemon } from "../../app/models/Pokemon";
 
-// const initialState = { value: [new Pokemon(0, "primis", "asdf")] };
 const initialState = {
-    pokemons: [
-        { id: 0, name: "primis", image: "asdf" },
-        { id: 1, name: "secus", image: "asdf" },
-    ],
-    status: 'idle',
-    error: null,
+  pokemons: [],
+  status: "idle",
+  error: null,
 };
 
 export const pokemonSlice = createSlice({
-    name: 'pokemons',
-    initialState,
-    reducers: {
-        addPokemon: state => {
-            // state.value.pokemons = [...state.value.pokemons, new Pokemon(state.value.pokemons.length, `Pokemon ${state.value.pokemons.length}`, "asdf")];
-            state.pokemons.push({ id: state.pokemons.length, name: `Pokemon ${state.pokemons.length}`, image: "asdf" });
-        },
-    }
+  name: "pokemons",
+  initialState,
+  reducers: {
+    getPokemons: (
+      state: {
+        pokemons: { id: number; name: string; image: string }[];
+      },
+      action: PayloadAction<{ id: number; name: string; image: string }[]>
+    ) => {
+      action.payload.map((pokemon: any) => {
+        const { ID, Name, Image } = pokemon;
+        state.pokemons.push({ id: ID, name: Name, image: Image });
+      });
+    },
+    addPokemon: (state: {
+      pokemons: { id: any; name: string; image: string }[];
+    }) => {
+      state.pokemons.push({
+        id: state.pokemons.length,
+        name: `Pokemon ${state.pokemons.length}`,
+        image: "asdf",
+      });
+    },
+  },
 });
 
-export const { addPokemon } = pokemonSlice.actions;
+export const fetchAllPokemons = () => {
+  return async (
+    dispatch: (arg0: any) => void,
+    getState: any,
+    extraArgument: { api: { url: string } }
+  ) => {
+    try {
+      const s: any = getState();
+      if (s && s.pokemon.pokemons.length === 0) {
+        const pokemons = await axios.get(extraArgument.api.url);
+        dispatch(getPokemons(pokemons.data));
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+};
 
-export const selectPokemonCount = (state: any): number => state.counter.pokemons.length;
-export const selectAllPokemons = (state: any) => state.counter.pokemons;
+export const { addPokemon, getPokemons } = pokemonSlice.actions;
+
+export const selectPokemonCount = (state: any): number =>
+  state.pokemon.pokemons.length;
+export const selectAllPokemons = (state: any) => state.pokemon.pokemons;
 
 export default pokemonSlice.reducer;
-
-// const fetchPokemons = ()=>{
-//     return async(dispatch, getState)=>{
-//         try{
-//             const pokemons = await axios.get("http://localhost:8080/pokemons");
-//             dispatch()
-//         }
-//     }
-// }

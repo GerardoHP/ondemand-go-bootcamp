@@ -1,0 +1,16 @@
+.App{
+    background-color: gray;;
+}
+
+.PokemonContainer{
+    background-color: rgb(69, 64, 64);
+    color: white;
+}
+
+.h-5{
+    height: 3% !important;
+}
+
+.h-90{
+    height: 95% !important;
+}

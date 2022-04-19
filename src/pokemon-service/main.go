@@ -9,6 +9,7 @@ import (
 	"github.com/GerardoHP/ondemand-go-bootcamp/registry"
 	"github.com/GerardoHP/ondemand-go-bootcamp/router"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 func main() {
@@ -17,6 +18,9 @@ func main() {
 	r := registry.NewRegistry(fn)
 
 	e := echo.New()
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+	}))
 	e = router.NewRouter(e, r.NewAppController())
 
 	fmt.Println("Server listen at port:", config.Port)
