@@ -1,4 +1,6 @@
 import { Pokemon as PokemonInterface } from "../../app/models/Pokemon";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPokemonDetail } from "../pokemon/pokemonDetailSlice";
 
 export function Pokemon({ Id, Name, Image }: PokemonInterface) {
 
