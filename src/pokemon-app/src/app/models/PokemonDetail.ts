@@ -13,7 +13,11 @@ export interface PokemonDetail {
   weight: number;
 }
 
-interface ability extends baseInterface {}
+export interface ability {
+  ability: baseInterface;
+  is_hidden: boolean;
+  slot: number;
+}
 
 interface form extends baseInterface {}
 

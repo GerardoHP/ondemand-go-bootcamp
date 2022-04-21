@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { Pokemon } from './Pokemon';
 import { Pokemon as PokemonInterface } from "../../app/models/Pokemon";
 
-export function PokemonList({ pokemons }: any) {
+export function PokemonList({ pokemons }: { pokemons: PokemonInterface[] }) {
 
     const [selected, setSelected] = useState(-1);
     const [selectedPokemon, setSelectedPokemon] = useState<PokemonInterface>({ Id: 0, Name: '', Image: '', Url: '' });
@@ -18,8 +18,8 @@ export function PokemonList({ pokemons }: any) {
     };
 
     const searchFilter = ({ target }: { target: { value: string } }) => {
-        const newFilteredPokemons = pokemons.filter((pok: { name: string }) => {
-            return pok.name.toLocaleLowerCase().includes(target.value.toLocaleLowerCase());
+        const newFilteredPokemons = pokemons.filter(({ Name }: { Name: string }) => {
+            return Name.toLocaleLowerCase().includes(target.value.toLocaleLowerCase());
         });
 
         setFilteredPokemons(newFilteredPokemons);

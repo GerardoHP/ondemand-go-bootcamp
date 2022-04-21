@@ -3,30 +3,30 @@ import axios from "axios";
 import { Pokemon } from "../../app/models/Pokemon";
 import { PokemonDetail } from "../../app/models/PokemonDetail";
 
-interface IState {
-  pokemons: { [id: string]: PokemonDetail };
+export interface IPokemonDetailState {
+  pokemons: { [name: string]: PokemonDetail };
 }
 
-const initialState: IState = { pokemons: {} };
+const initialState: IPokemonDetailState = { pokemons: {} };
 
 export const pokemonDetailsSlice = createSlice({
   name: "pokemonsDetails",
   initialState,
   reducers: {
     setPokemonsDetail: (
-      state: IState,
+      state: any,
       action: PayloadAction<PokemonDetail>
     ) => {
-      state[action.payload.id] = action.payload;
+      state.pokemons[action.payload.name] = action.payload;
     },
   },
 });
 
-export const fetchPokemonDetail = (id: number, url: string) => {
+export const fetchPokemonDetail = (name: string, url: string) => {
   return async (dispatch: (arg0: any) => void, getState: any) => {
     try {
-      const s: { [id: string]: PokemonDetail } = getState();
-      if (s && !s[id]) {
+      const { pokemonDetail }: { pokemonDetail: IPokemonDetailState } = getState();
+      if (pokemonDetail && url !== "" && !pokemonDetail.pokemons[name]) {
         const pokemonDetail = await axios.get<PokemonDetail>(url);
         dispatch(setPokemonsDetail(pokemonDetail.data));
       }
@@ -37,10 +37,5 @@ export const fetchPokemonDetail = (id: number, url: string) => {
 };
 
 export const { setPokemonsDetail } = pokemonDetailsSlice.actions;
-
-const selectById = createSelector(
-  [(state) => state, (state, id) => id],
-  (state, id) => state[id]
-);
 
 export default pokemonDetailsSlice.reducer;
