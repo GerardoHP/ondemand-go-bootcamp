@@ -1,19 +1,17 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Pokemon } from "../../app/models/Pokemon";
 
-const initialState = {
-  pokemonsDetails: [],
-};
+const initialState: { [id: string]: Pokemon } = {};
 
 export const pokemonDetailsSlice = createSlice({
   name: "pokemonsDetails",
   initialState,
   reducers: {
-    getPokemonDetail: () => {},
+    getPokemonsDetail: (state:{ [id: string]: Pokemon } , action: PayloadAction<Pok>) => {},
   },
 });
 
-
-// TODO: Create the method to get all the details of 
+// TODO: Create the method to get all the details of
 // export const fetchPokemonDetail = (id: number, ) => {
 //   return async (dispatch, getState, extraArgument) => {
 //     const s = getState();
