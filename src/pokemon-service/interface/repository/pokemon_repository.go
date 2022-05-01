@@ -2,24 +2,31 @@ package repository
 
 import (
 	"bufio"
+	"errors"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/GerardoHP/ondemand-go-bootcamp/domain/model"
 )
 
+// The actual implementation of a pokemon repository interface
 type pokemonRepository struct {
 	pokemonFile string
 }
 
-type UserRepository interface {
+// Repository in charge of all the interactions with the pokemon source file
+type PokemonRepository interface {
 	FindAll(p []*model.Pokemon) ([]*model.Pokemon, error)
 }
 
-func NewPokemonRepository(fn string) UserRepository {
+// Gets a new instance of pokemon repository
+func NewPokemonRepository(fn string) PokemonRepository {
 	return &pokemonRepository{pokemonFile: fn}
 }
 
+// Gets all the pokemons available
 func (pk *pokemonRepository) FindAll(p []*model.Pokemon) ([]*model.Pokemon, error) {
 	file, err := os.Open(pk.pokemonFile)
 	if err != nil {
@@ -30,7 +37,7 @@ func (pk *pokemonRepository) FindAll(p []*model.Pokemon) ([]*model.Pokemon, erro
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
-		pk, errPk := model.ToPokemon(scanner.Text())
+		pk, errPk := toPokemon(scanner.Text())
 		if errPk != nil {
 			log.Fatal(err)
 			continue
@@ -40,4 +47,24 @@ func (pk *pokemonRepository) FindAll(p []*model.Pokemon) ([]*model.Pokemon, erro
 	}
 
 	return p, nil
+}
+
+// Creates a pokemon from a string
+func toPokemon(s string) (*model.Pokemon, error) {
+	str := strings.Split(s, ",")
+	if len(str) != 3 {
+		return &model.Pokemon{}, errors.New("it's not a pokemon")
+	}
+
+	id, err := strconv.ParseInt(str[0], 10, 8)
+
+	if err != nil {
+		panic("id is not int")
+	}
+
+	return &model.Pokemon{
+		ID:   int(id),
+		Name: strings.Trim(str[1], " "),
+		Url:  strings.Trim(str[2], " "),
+	}, nil
 }

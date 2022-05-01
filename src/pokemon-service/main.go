@@ -5,16 +5,16 @@ import (
 	"log"
 
 	"github.com/GerardoHP/ondemand-go-bootcamp/config"
-	"github.com/GerardoHP/ondemand-go-bootcamp/domain/model"
 	"github.com/GerardoHP/ondemand-go-bootcamp/registry"
 	"github.com/GerardoHP/ondemand-go-bootcamp/router"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
 
+// Starts the echo server with the available methods
 func main() {
 	config := config.GetInstance()
-	fn := model.FileName()
+	fn := config.StorageFileName
 	r := registry.NewRegistry(fn)
 
 	e := echo.New()
