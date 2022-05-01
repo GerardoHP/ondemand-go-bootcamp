@@ -7,10 +7,6 @@ import (
 	"strings"
 )
 
-const (
-	fileName string = "pokemons.csv"
-)
-
 // Pokemon is the actual representation of the Pokemon objet, contains all  the required details
 type Pokemon struct {
 	ID   int
@@ -23,9 +19,6 @@ func (p Pokemon) String() string {
 	pstr := fmt.Sprintf("%v, %v", p.ID, p.Name)
 	return pstr
 }
-
-// The filename that holds all the pokemons
-func FileName() string { return fileName }
 
 // Creates a pokemon from a string
 func ToPokemon(s string) (*Pokemon, error) {
