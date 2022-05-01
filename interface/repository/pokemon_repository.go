@@ -2,8 +2,11 @@ package repository
 
 import (
 	"bufio"
+	"errors"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/GerardoHP/ondemand-go-bootcamp/domain/model"
 )
@@ -34,7 +37,7 @@ func (pk *pokemonRepository) FindAll(p []*model.Pokemon) ([]*model.Pokemon, erro
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
-		pk, errPk := model.ToPokemon(scanner.Text())
+		pk, errPk := toPokemon(scanner.Text())
 		if errPk != nil {
 			log.Fatal(err)
 			continue
@@ -44,4 +47,24 @@ func (pk *pokemonRepository) FindAll(p []*model.Pokemon) ([]*model.Pokemon, erro
 	}
 
 	return p, nil
+}
+
+// Creates a pokemon from a string
+func toPokemon(s string) (*model.Pokemon, error) {
+	str := strings.Split(s, ",")
+	if len(str) != 3 {
+		return &model.Pokemon{}, errors.New("it's not a pokemon")
+	}
+
+	id, err := strconv.ParseInt(str[0], 10, 8)
+
+	if err != nil {
+		panic("id is not int")
+	}
+
+	return &model.Pokemon{
+		ID:   int(id),
+		Name: strings.Trim(str[1], " "),
+		Url:  strings.Trim(str[2], " "),
+	}, nil
 }
