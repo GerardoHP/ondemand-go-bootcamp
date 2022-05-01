@@ -3,6 +3,7 @@ package repository
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -39,7 +40,7 @@ func (pk *pokemonRepository) FindAll(p []*model.Pokemon) ([]*model.Pokemon, erro
 	for scanner.Scan() {
 		pk, errPk := toPokemon(scanner.Text())
 		if errPk != nil {
-			log.Fatal(err)
+			log.Fatal(errPk)
 			continue
 		}
 
@@ -52,19 +53,21 @@ func (pk *pokemonRepository) FindAll(p []*model.Pokemon) ([]*model.Pokemon, erro
 // Creates a pokemon from a string
 func toPokemon(s string) (*model.Pokemon, error) {
 	str := strings.Split(s, ",")
-	if len(str) != 3 {
+	if len(str) != 4 {
 		return &model.Pokemon{}, errors.New("it's not a pokemon")
 	}
 
-	id, err := strconv.ParseInt(str[0], 10, 8)
+	id, err := strconv.ParseInt(str[0], 10, 64)
 
 	if err != nil {
-		panic("id is not int")
+		fmt.Println(s, str[0])
+		panic(err)
 	}
 
 	return &model.Pokemon{
-		ID:   int(id),
-		Name: strings.Trim(str[1], " "),
-		Url:  strings.Trim(str[2], " "),
+		ID:    int(id),
+		Name:  strings.Trim(str[1], " "),
+		Url:   strings.Trim(str[2], " "),
+		Image: strings.Trim(str[3], " "),
 	}, nil
 }

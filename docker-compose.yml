@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+  pokemon-service:
+    container_name: pokemon-service-container
+    build: src/pokemon-service
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+
+  pokemon-app:
+    container_name: pokemon-app-container
+    build: src/pokemon-app
+    ports: 
+      - "3000:3000"
