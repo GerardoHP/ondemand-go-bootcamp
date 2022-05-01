@@ -11,6 +11,7 @@ import (
 	"github.com/labstack/echo"
 )
 
+// Starts the echo server with the available methods
 func main() {
 	config := config.GetInstance()
 	fn := model.FileName()

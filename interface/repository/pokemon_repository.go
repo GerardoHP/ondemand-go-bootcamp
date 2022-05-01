@@ -8,18 +8,22 @@ import (
 	"github.com/GerardoHP/ondemand-go-bootcamp/domain/model"
 )
 
+// The actual implementation of a pokemon repository interface
 type pokemonRepository struct {
 	pokemonFile string
 }
 
-type UserRepository interface {
+// Repository in charge of all the interactions with the pokemon source file
+type PokemonRepository interface {
 	FindAll(p []*model.Pokemon) ([]*model.Pokemon, error)
 }
 
-func NewPokemonRepository(fn string) UserRepository {
+// Gets a new instance of pokemon repository
+func NewPokemonRepository(fn string) PokemonRepository {
 	return &pokemonRepository{pokemonFile: fn}
 }
 
+// Gets all the pokemons available
 func (pk *pokemonRepository) FindAll(p []*model.Pokemon) ([]*model.Pokemon, error) {
 	file, err := os.Open(pk.pokemonFile)
 	if err != nil {
