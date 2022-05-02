@@ -18,6 +18,7 @@ func NewRouter(e *echo.Echo, c controller.AppController) *echo.Echo {
 	//TODO: Add second endpoint to search new pokemons that weren't in the original set,
 	// this new endpoint should point to the pokemon api to search for the pokemon and
 	// once it has a result add the pokemon to csv file for further consultartionp
+	// The API is the following https://pokeapi.co/api/v2/pokemon/{pokemon_name}
 
 	return e
 }
