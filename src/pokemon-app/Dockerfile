@@ -1,6 +1,6 @@
 ###################################### REACT APP ######################################
 
-FROM node:18-alpine
+FROM node:16-alpine
 
 WORKDIR /usr/src/pokemon-app
 
