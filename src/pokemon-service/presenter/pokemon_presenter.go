@@ -3,7 +3,7 @@ package presenter
 import (
 	"strings"
 
-	"github.com/GerardoHP/ondemand-go-bootcamp/domain/entity"
+	"github.com/GerardoHP/ondemand-go-bootcamp/entity"
 )
 
 // The actual implementation of PokemonPresenter interface

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/GerardoHP/ondemand-go-bootcamp/domain/entity"
+	"github.com/GerardoHP/ondemand-go-bootcamp/entity"
 )
 
 // Pokemon is the actual representation of the Pokemon objet, contains all  the required details

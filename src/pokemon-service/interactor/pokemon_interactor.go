@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/GerardoHP/ondemand-go-bootcamp/domain/entity"
-	"github.com/GerardoHP/ondemand-go-bootcamp/domain/model"
-	"github.com/GerardoHP/ondemand-go-bootcamp/usecase/presenter"
-	"github.com/GerardoHP/ondemand-go-bootcamp/usecase/repository"
+	"github.com/GerardoHP/ondemand-go-bootcamp/entity"
+	"github.com/GerardoHP/ondemand-go-bootcamp/model"
+	"github.com/GerardoHP/ondemand-go-bootcamp/presenter"
+	"github.com/GerardoHP/ondemand-go-bootcamp/repository"
 	"github.com/go-resty/resty/v2"
 )
 
 // Implementation of the interface PokemonInteractor
 type pokemonInteractor struct {
-	PokemonRepository repository.PokemonRepositoty
+	PokemonRepository repository.PokemonRepository
 	PokemonPresenter  presenter.PokemonPresenter
 }
 
@@ -25,7 +25,7 @@ type PokemonInteractor interface {
 }
 
 // Returns a new PokemonInteractor instance
-func NewPokemonInteractor(r repository.PokemonRepositoty, p presenter.PokemonPresenter) PokemonInteractor {
+func NewPokemonInteractor(r repository.PokemonRepository, p presenter.PokemonPresenter) PokemonInteractor {
 	return &pokemonInteractor{PokemonRepository: r, PokemonPresenter: p}
 }
 

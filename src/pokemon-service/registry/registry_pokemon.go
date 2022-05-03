@@ -1,14 +1,14 @@
 package registry
 
 import (
-	"github.com/GerardoHP/ondemand-go-bootcamp/interface/controller"
-	"github.com/GerardoHP/ondemand-go-bootcamp/usecase/interactor"
+	"github.com/GerardoHP/ondemand-go-bootcamp/controller"
+	"github.com/GerardoHP/ondemand-go-bootcamp/interactor"
 
-	ip "github.com/GerardoHP/ondemand-go-bootcamp/interface/presenter"
-	ir "github.com/GerardoHP/ondemand-go-bootcamp/interface/repository"
+	ip "github.com/GerardoHP/ondemand-go-bootcamp/presenter"
+	ir "github.com/GerardoHP/ondemand-go-bootcamp/repository"
 
-	pp "github.com/GerardoHP/ondemand-go-bootcamp/usecase/presenter"
-	pr "github.com/GerardoHP/ondemand-go-bootcamp/usecase/repository"
+	pp "github.com/GerardoHP/ondemand-go-bootcamp/presenter"
+	pr "github.com/GerardoHP/ondemand-go-bootcamp/repository"
 )
 
 // Retruns a new instance of PokemonController
@@ -22,7 +22,7 @@ func (r *registry) NewPokemonInteractor() interactor.PokemonInteractor {
 }
 
 // Returns a new instance of PokemonRepository
-func (r *registry) NewPokemonRepository() pr.PokemonRepositoty {
+func (r *registry) NewPokemonRepository() pr.PokemonRepository {
 	return ir.NewPokemonRepository(r.fileName)
 }
 

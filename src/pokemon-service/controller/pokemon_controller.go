@@ -3,8 +3,8 @@ package controller
 import (
 	"net/http"
 
-	"github.com/GerardoHP/ondemand-go-bootcamp/domain/entity"
-	"github.com/GerardoHP/ondemand-go-bootcamp/usecase/interactor"
+	"github.com/GerardoHP/ondemand-go-bootcamp/entity"
+	"github.com/GerardoHP/ondemand-go-bootcamp/interactor"
 )
 
 // The actual representation of PokemonController interface

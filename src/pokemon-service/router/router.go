@@ -1,7 +1,7 @@
 package router
 
 import (
-	"github.com/GerardoHP/ondemand-go-bootcamp/interface/controller"
+	"github.com/GerardoHP/ondemand-go-bootcamp/controller"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )

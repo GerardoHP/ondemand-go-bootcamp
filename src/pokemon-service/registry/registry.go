@@ -1,7 +1,7 @@
 package registry
 
 import (
-	"github.com/GerardoHP/ondemand-go-bootcamp/interface/controller"
+	"github.com/GerardoHP/ondemand-go-bootcamp/controller"
 )
 
 // Implementation of RegistryInterface

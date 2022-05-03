@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/GerardoHP/ondemand-go-bootcamp/domain/entity"
-	"github.com/GerardoHP/ondemand-go-bootcamp/domain/model"
+	"github.com/GerardoHP/ondemand-go-bootcamp/entity"
+	"github.com/GerardoHP/ondemand-go-bootcamp/model"
 )
 
 // The actual implementation of a pokemon repository interface
