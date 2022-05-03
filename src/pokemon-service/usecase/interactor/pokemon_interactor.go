@@ -1,9 +1,15 @@
 package interactor
 
 import (
+	"encoding/json"
+	"fmt"
+	"strings"
+
+	"github.com/GerardoHP/ondemand-go-bootcamp/domain/entity"
 	"github.com/GerardoHP/ondemand-go-bootcamp/domain/model"
 	"github.com/GerardoHP/ondemand-go-bootcamp/usecase/presenter"
 	"github.com/GerardoHP/ondemand-go-bootcamp/usecase/repository"
+	"github.com/go-resty/resty/v2"
 )
 
 // Implementation of the interface PokemonInteractor
@@ -14,20 +20,56 @@ type pokemonInteractor struct {
 
 // The interface that holds all the pokemon interactions
 type PokemonInteractor interface {
-	Get(p []*model.Pokemon) ([]*model.Pokemon, error)
+	Get(p []*entity.Pokemon) ([]*entity.Pokemon, error)
+	GetPokemon(p string) (*entity.Pokemon, error)
 }
 
-// Returnsa new PokemonInteractor instance
+// Returns a new PokemonInteractor instance
 func NewPokemonInteractor(r repository.PokemonRepositoty, p presenter.PokemonPresenter) PokemonInteractor {
 	return &pokemonInteractor{PokemonRepository: r, PokemonPresenter: p}
 }
 
 // Gets all the pokemons found in the repository
-func (pk *pokemonInteractor) Get(p []*model.Pokemon) ([]*model.Pokemon, error) {
+func (pk *pokemonInteractor) Get(p []*entity.Pokemon) ([]*entity.Pokemon, error) {
 	p, err := pk.PokemonRepository.FindAll(p)
 	if err != nil {
 		return nil, err
 	}
 
 	return pk.PokemonPresenter.ResponsePresenter(p), nil
+}
+
+// Gets a specific pokemon
+func (pk *pokemonInteractor) GetPokemon(p string) (*entity.Pokemon, error) {
+	pokemon, err := pk.PokemonRepository.FindByName(p)
+	if err != nil {
+		return nil, err
+	}
+
+	if pokemon == nil {
+		newPokemon, _ := getPokemonDetail(p)
+		if newPokemon != nil {
+			pokemon, _ = pk.PokemonRepository.Add(newPokemon)
+		}
+
+	}
+
+	return pokemon, nil
+}
+
+// Gets a pokemon detail from a service
+func getPokemonDetail(name string) (*entity.Pokemon, error) {
+	url := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%v", strings.ToLower(name))
+	client := resty.New()
+	resp, err := client.R().EnableTrace().Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	var pk *entity.Pokemon = &entity.Pokemon{}
+	json.Unmarshal(resp.Body(), &pk)
+	pk.Url = url
+	pk.Image = model.GetImageUrl(pk.ID)
+
+	return pk, nil
 }

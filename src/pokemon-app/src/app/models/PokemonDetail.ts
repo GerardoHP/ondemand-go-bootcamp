@@ -11,6 +11,16 @@ export interface PokemonDetail {
   name: string;
   order: number;
   weight: number;
+  sprites: {
+    other: {
+      home: {
+        front_default: string;
+      },
+      "official-artwork": {
+        front_default: string;
+      }
+    }
+  }
 }
 
 export interface ability {
@@ -19,14 +29,14 @@ export interface ability {
   slot: number;
 }
 
-interface form extends baseInterface {}
+interface form extends baseInterface { }
 
 interface game_index {
   game_index: number;
   version: game_version;
 }
 
-interface game_version extends baseInterface {}
+interface game_version extends baseInterface { }
 
 interface move {
   move: baseInterface;

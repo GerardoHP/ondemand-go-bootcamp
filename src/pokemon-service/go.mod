@@ -2,7 +2,10 @@ module github.com/GerardoHP/ondemand-go-bootcamp
 
 go 1.18
 
-require github.com/labstack/echo v3.3.10+incompatible
+require (
+	github.com/go-resty/resty/v2 v2.7.0
+	github.com/labstack/echo v3.3.10+incompatible
+)
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
