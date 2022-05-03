@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/GerardoHP/ondemand-go-bootcamp/dto"
 	"github.com/GerardoHP/ondemand-go-bootcamp/entity"
 	"github.com/GerardoHP/ondemand-go-bootcamp/model"
 	"github.com/GerardoHP/ondemand-go-bootcamp/presenter"
@@ -66,10 +67,10 @@ func getPokemonDetail(name string) (*entity.Pokemon, error) {
 		return nil, err
 	}
 
-	var pk *entity.Pokemon = &entity.Pokemon{}
+	var pk *dto.Pokemon = &dto.Pokemon{}
 	json.Unmarshal(resp.Body(), &pk)
 	pk.Url = url
 	pk.Image = model.GetImageUrl(pk.ID)
 
-	return pk, nil
+	return &entity.Pokemon{ID: pk.ID, Name: pk.Name, Url: pk.Url, Image: pk.Image}, nil
 }
