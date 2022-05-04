@@ -19,7 +19,6 @@ export const pokemonSlice = createSlice({
   initialState,
   reducers: {
     setPokemons: (state: IState, action: PayloadAction<any[]>) => {
-      // state.pokemons = action.payload;
       state.pokemons = action.payload.map(
         ({
           ID,
@@ -32,19 +31,14 @@ export const pokemonSlice = createSlice({
           Url: string;
           Image: string;
         }) => {
-          // const { id, name, image, url } = pokemon;
-          // state.pokemons.push({ id, name, image, url });
           return { Id: ID, Name, Url, Image };
         }
       );
     },
-    addPokemon: (state: { pokemons: Pokemon[] }) => {
-      state.pokemons.push({
-        Id: state.pokemons.length,
-        Name: `Pokemon ${state.pokemons.length}`,
-        Image: "asdf",
-        Url: "",
-      });
+    addPokemon: (state: IState, action: PayloadAction<any>) => {
+      const pokemon: Pokemon = { ...action.payload };
+      pokemon.Id = action.payload.ID;
+      state.pokemons.push(pokemon);
     },
   },
 });
@@ -58,9 +52,31 @@ export const fetchAllPokemons = () => {
     try {
       const s: any = getState();
       if (s && s.pokemon.pokemons.length === 0) {
-        const pokemons = await axios.get(extraArgument.api.url);
+        const pokemons = await axios.get(`${extraArgument.api.url}/pokemons`);
         dispatch(setPokemons(pokemons.data));
       }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+};
+
+export const getPokemon = (pokemonName: string) => {
+  return async (
+    dispatch: (arg0: any) => void,
+    getState: any,
+    extraArgument: { api: { url: string } }
+  ) => {
+    try {
+      const pokemon = await axios.get(
+        `${extraArgument.api.url}/pokemon/${pokemonName}`
+      );
+
+      if (pokemon.status !== 200) {
+        throw new Error("pokemon not found");
+      }
+
+      dispatch(addPokemon(pokemon.data));
     } catch (err) {
       console.log(err);
     }

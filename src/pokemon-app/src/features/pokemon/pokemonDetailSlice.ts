@@ -1,6 +1,5 @@
-import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
-import { Pokemon } from "../../app/models/Pokemon";
 import { PokemonDetail } from "../../app/models/PokemonDetail";
 
 export interface IPokemonDetailState {

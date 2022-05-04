@@ -6,12 +6,9 @@ import { PokemonDetail } from "../../app/models/PokemonDetail";
 import { Abilities } from "./Components";
 
 export function Pokemon({ Id, Name, Image, Url }: PokemonInterface) {
-
     const dispatch = useDispatch();
-
     const pokemon: PokemonDetail = useSelector(({ pokemonDetail }: { pokemonDetail: IPokemonDetailState }) => pokemonDetail.pokemons[Name.toLocaleLowerCase()] ?? null);
     let pokemonImg: string = "";
-    
     if (pokemon) {
         pokemonImg = pokemon.sprites?.other["home"]?.front_default
     }

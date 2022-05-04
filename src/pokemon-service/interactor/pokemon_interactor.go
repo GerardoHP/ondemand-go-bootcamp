@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -48,7 +49,11 @@ func (pk *pokemonInteractor) GetPokemon(p string) (*entity.Pokemon, error) {
 	}
 
 	if pokemon == nil {
-		newPokemon, _ := getPokemonDetail(p)
+		newPokemon, getPokemonError := getPokemonDetail(p)
+		if getPokemonError != nil {
+			return nil, getPokemonError
+		}
+
 		if newPokemon != nil {
 			pokemon, _ = pk.PokemonRepository.Add(newPokemon)
 		}
@@ -65,6 +70,14 @@ func getPokemonDetail(name string) (*entity.Pokemon, error) {
 	resp, err := client.R().EnableTrace().Get(url)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.RawResponse.StatusCode == 404 {
+		return nil, errors.New("Not Found")
+	}
+
+	if resp.RawResponse.StatusCode != 200 {
+		return nil, errors.New("Other error")
 	}
 
 	var pk *dto.Pokemon = &dto.Pokemon{}

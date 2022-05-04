@@ -38,6 +38,10 @@ func (pc *pokemonController) GetPokemons(c Context) error {
 func (pc *pokemonController) GetPokemon(c Context) error {
 	pkName := c.Param("pokemonName")
 	p, err := pc.pokemonInteractor.GetPokemon(pkName)
+	if err != nil && err.Error() == "Not Found" {
+		return c.JSON(http.StatusNotFound, nil)
+	}
+
 	if err != nil {
 		return err
 	}

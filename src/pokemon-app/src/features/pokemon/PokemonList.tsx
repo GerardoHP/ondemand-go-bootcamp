@@ -2,15 +2,17 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './Pokemon.css';
 import { useState, useEffect } from "react";
+import { useDispatch } from 'react-redux';
 import { Pokemon } from './Pokemon';
+import { getPokemon } from '../../features/pokemon/pokemonSlice';
 import { Pokemon as PokemonInterface } from "../../app/models/Pokemon";
 
 export function PokemonList({ pokemons }: { pokemons: PokemonInterface[] }) {
-
+    const dispatch = useDispatch();
     const [selected, setSelected] = useState(-1);
     const [selectedPokemon, setSelectedPokemon] = useState<PokemonInterface>({ Id: 0, Name: '', Image: '', Url: '' });
     const [filterdPokemons, setFilteredPokemons] = useState<PokemonInterface[]>(pokemons);
-
+    const [filter, setFilter] = useState('');
     const selectPokemon = (newId: number) => {
         setSelected(newId);
         const newSelectedPokemon: PokemonInterface = filterdPokemons.find(({ Id }: PokemonInterface) => Id === newId) ?? { Id: 0, Name: '', Image: '', Url: '' };
@@ -18,16 +20,36 @@ export function PokemonList({ pokemons }: { pokemons: PokemonInterface[] }) {
     };
 
     const searchFilter = ({ target }: { target: { value: string } }) => {
+        applySearchFilter(target.value)
+    }
+
+    const applySearchFilter = (filter: string) => {
         const newFilteredPokemons = pokemons.filter(({ Name }: { Name: string }) => {
-            return Name.toLocaleLowerCase().includes(target.value.toLocaleLowerCase());
+            return Name.toLocaleLowerCase().includes(filter.toLocaleLowerCase());
         });
 
+        if (newFilteredPokemons.length === 0) {
+            dispatch(getPokemon(filter))
+        }
+
+        setFilter(filter);
         setFilteredPokemons(newFilteredPokemons);
     }
 
+    useEffect(()=>{
+        if(filter){
+            const newSelectedPokemon: PokemonInterface = filterdPokemons.find(({ Name }: PokemonInterface) => Name === filter.toLowerCase()) ?? { Id: 0, Name: '', Image: '', Url: '' };
+            setSelectedPokemon(newSelectedPokemon);
+        }
+    },[filterdPokemons])
+
     useEffect(() => {
-        if (filterdPokemons.length === 0) {
+        if (filterdPokemons.length === 0 && filter === '') {
             setFilteredPokemons(pokemons);
+        }
+
+        if (filter !== '') {
+            applySearchFilter(filter)
         }
     }, [pokemons])
 
