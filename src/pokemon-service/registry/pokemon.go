@@ -14,7 +14,7 @@ func (r *registry) NewPokemonController() controller.Pokemon {
 
 // Returns a new instance of PokemonInteractor
 func (r *registry) NewPokemonInteractor() interactor.Pokemon {
-	return interactor.NewPokemonInteractor(r.NewPokemonRepository(), r.NewPokemonPresenter())
+	return interactor.NewPokemonInteractor(r.NewPokemonRepository(), r.NewPokemonPresenter(), nil)
 }
 
 // Returns a new instance of PokemonRepository

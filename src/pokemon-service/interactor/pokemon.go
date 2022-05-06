@@ -14,10 +14,15 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
+type Client interface {
+	Get(url string) (*resty.Response, error)
+}
+
 // Implementation of the interface PokemonInteractor
 type pokemonInteractor struct {
 	PokemonRepository repository.Pokemon
 	PokemonPresenter  presenter.Pokemon
+	client            Client
 }
 
 // The interface that holds all the pokemon interactions
@@ -27,8 +32,8 @@ type Pokemon interface {
 }
 
 // Returns a new PokemonInteractor instance
-func NewPokemonInteractor(r repository.Pokemon, p presenter.Pokemon) Pokemon {
-	return &pokemonInteractor{PokemonRepository: r, PokemonPresenter: p}
+func NewPokemonInteractor(r repository.Pokemon, p presenter.Pokemon, c Client) Pokemon {
+	return &pokemonInteractor{PokemonRepository: r, PokemonPresenter: p, client: c}
 }
 
 // Gets all the pokemons found in the repository
@@ -49,7 +54,7 @@ func (pk *pokemonInteractor) GetPokemon(p string) (*entity.Pokemon, error) {
 	}
 
 	if pokemon == nil {
-		newPokemon, getPokemonError := getPokemonDetail(p)
+		newPokemon, getPokemonError := getPokemonDetail(p, pk.client)
 		if getPokemonError != nil {
 			return nil, getPokemonError
 		}
@@ -64,10 +69,14 @@ func (pk *pokemonInteractor) GetPokemon(p string) (*entity.Pokemon, error) {
 }
 
 // Gets a pokemon detail from a service
-func getPokemonDetail(name string) (*entity.Pokemon, error) {
+func getPokemonDetail(name string, c Client) (*entity.Pokemon, error) {
 	url := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%v", strings.ToLower(name))
-	client := resty.New()
-	resp, err := client.R().EnableTrace().Get(url)
+	if c == nil {
+		client := resty.New()
+		c = client.R().EnableTrace()
+	}
+
+	resp, err := c.Get(url)
 	if err != nil {
 		return nil, err
 	}
