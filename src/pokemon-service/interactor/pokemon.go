@@ -16,18 +16,18 @@ import (
 
 // Implementation of the interface PokemonInteractor
 type pokemonInteractor struct {
-	PokemonRepository repository.PokemonRepository
-	PokemonPresenter  presenter.PokemonPresenter
+	PokemonRepository repository.Pokemon
+	PokemonPresenter  presenter.Pokemon
 }
 
 // The interface that holds all the pokemon interactions
-type PokemonInteractor interface {
+type Pokemon interface {
 	Get(p []*entity.Pokemon) ([]*entity.Pokemon, error)
 	GetPokemon(p string) (*entity.Pokemon, error)
 }
 
 // Returns a new PokemonInteractor instance
-func NewPokemonInteractor(r repository.PokemonRepository, p presenter.PokemonPresenter) PokemonInteractor {
+func NewPokemonInteractor(r repository.Pokemon, p presenter.Pokemon) Pokemon {
 	return &pokemonInteractor{PokemonRepository: r, PokemonPresenter: p}
 }
 

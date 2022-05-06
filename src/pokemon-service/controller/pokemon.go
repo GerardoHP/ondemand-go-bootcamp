@@ -9,17 +9,17 @@ import (
 
 // The actual representation of PokemonController interface
 type pokemonController struct {
-	pokemonInteractor interactor.PokemonInteractor
+	pokemonInteractor interactor.Pokemon
 }
 
 // The controller in charge of getting the pokemosn
-type PokemonController interface {
+type Pokemon interface {
 	GetPokemons(c Context) error
 	GetPokemon(c Context) error
 }
 
 // Returns a new instance a PokemonController
-func NewPokemonController(pk interactor.PokemonInteractor) PokemonController {
+func NewPokemonController(pk interactor.Pokemon) Pokemon {
 	return &pokemonController{pokemonInteractor: pk}
 }
 

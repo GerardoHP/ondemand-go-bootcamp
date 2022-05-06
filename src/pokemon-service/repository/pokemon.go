@@ -16,14 +16,14 @@ type pokemonRepository struct {
 }
 
 // Repository in charge of all the interactions with the pokemon source file
-type PokemonRepository interface {
+type Pokemon interface {
 	FindAll(p []*entity.Pokemon) ([]*entity.Pokemon, error)
 	FindByName(pkName string) (*entity.Pokemon, error)
 	Add(pk *entity.Pokemon) (*entity.Pokemon, error)
 }
 
 // Gets a new instance of pokemon repository
-func NewPokemonRepository(fn string) PokemonRepository {
+func NewPokemonRepository(fn string) Pokemon {
 	return &pokemonRepository{pokemonFile: fn}
 }
 

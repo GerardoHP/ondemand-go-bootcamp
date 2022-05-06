@@ -11,13 +11,13 @@ type pokemonPresenter struct {
 }
 
 // The output of the pokemons, gives the pokemons a special string treatment
-type PokemonPresenter interface {
+type Pokemon interface {
 	ResponsePresenter(pk []*entity.Pokemon) []*entity.Pokemon
 	IndividualResponsePresenter(pk *entity.Pokemon) *entity.Pokemon
 }
 
 // Returns a new instance of PokemonPresenter
-func NewPokemonPresenter() PokemonPresenter {
+func NewPokemonPresenter() Pokemon {
 	return &pokemonPresenter{}
 }
 
