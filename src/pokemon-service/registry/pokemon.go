@@ -19,7 +19,7 @@ func (r *registry) NewPokemonInteractor() interactor.Pokemon {
 
 // Returns a new instance of PokemonRepository
 func (r *registry) NewPokemonRepository() repository.Pokemon {
-	return repository.NewPokemonRepository(r.fileName)
+	return repository.NewPokemonRepository(r.fileName, nil)
 }
 
 // Returns a new instance of PokemonPresenter

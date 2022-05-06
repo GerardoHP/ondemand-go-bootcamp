@@ -1,18 +1,18 @@
 package repository
 
 import (
-	"bufio"
-	"io/ioutil"
+	"errors"
 	"log"
-	"os"
 
 	"github.com/GerardoHP/ondemand-go-bootcamp/entity"
 	"github.com/GerardoHP/ondemand-go-bootcamp/model"
+	"github.com/GerardoHP/ondemand-go-bootcamp/utils"
 )
 
 // The actual implementation of a pokemon repository interface
 type pokemonRepository struct {
 	pokemonFile string
+	fileUtils   utils.File
 }
 
 // Repository in charge of all the interactions with the pokemon source file
@@ -23,13 +23,17 @@ type Pokemon interface {
 }
 
 // Gets a new instance of pokemon repository
-func NewPokemonRepository(fn string) Pokemon {
-	return &pokemonRepository{pokemonFile: fn}
+func NewPokemonRepository(fn string, f utils.File) Pokemon {
+	if f == nil {
+		f = utils.NewFileUtil(fn)
+	}
+
+	return &pokemonRepository{pokemonFile: fn, fileUtils: f}
 }
 
 // Gets all the pokemons available
 func (repo *pokemonRepository) FindAll(p []*entity.Pokemon) ([]*entity.Pokemon, error) {
-	pokemonsMap, err := readAllPokemon(repo.pokemonFile)
+	pokemonsMap, err := readAllPokemon(repo.pokemonFile, repo.fileUtils)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +47,7 @@ func (repo *pokemonRepository) FindAll(p []*entity.Pokemon) ([]*entity.Pokemon, 
 
 // Gets a pokemon from the repository, returns nil in case it's not found
 func (repo *pokemonRepository) FindByName(pkName string) (*entity.Pokemon, error) {
-	pokemonsMap, err := readAllPokemon(repo.pokemonFile)
+	pokemonsMap, err := readAllPokemon(repo.pokemonFile, repo.fileUtils)
 	if err != nil {
 		return nil, err
 	}
@@ -58,46 +62,27 @@ func (repo *pokemonRepository) FindByName(pkName string) (*entity.Pokemon, error
 
 // Adds a pokemon to the file
 func (repo *pokemonRepository) Add(pk *entity.Pokemon) (*entity.Pokemon, error) {
-	lines, err := readAllFileLines(repo.pokemonFile)
+	pkD, err := repo.FindByName(pk.Name)
+	if pkD != nil {
+		return nil, errors.New("duplicated pokemon")
+	}
+
 	if err != nil {
 		return nil, err
 	}
 
-	fileContent := ""
-	pkStr := model.ToString(*pk)
-	for _, line := range lines {
-		fileContent += line
-		fileContent += "\n"
-	}
-
-	fileContent += pkStr
-	writeErr := ioutil.WriteFile(repo.pokemonFile, []byte(fileContent), 0644)
-	if writeErr != nil {
-		return nil, writeErr
+	err = repo.fileUtils.AppendLineToFile(model.ToString(*pk))
+	if err != nil {
+		return nil, err
 	}
 
 	return pk, nil
-	// file, err := os.Open(repo.pokemonFile)
-	// if err != nil {
-	// 	log.Fatal("Failed to open", err)
-	// 	return nil, err
-	// }
-
-	// writer := bufio.NewWriter(file)
-
-	// _, writingError := writer.WriteString(pkStr + "\n")
-	// if writingError != nil {
-	// 	return nil, writingError
-	// }
-
-	// writer.Flush()
-	// return pk, nil
 }
 
 // Gets all of the pokemon from the file
-func readAllPokemon(filename string) (map[string]*model.Pokemon, error) {
+func readAllPokemon(filename string, fUtils utils.File) (map[string]*model.Pokemon, error) {
 	pokemonMap := make(map[string]*model.Pokemon)
-	lines, err := readAllFileLines(filename)
+	lines, err := fUtils.ReadAllFileLines()
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +90,7 @@ func readAllPokemon(filename string) (map[string]*model.Pokemon, error) {
 	for _, line := range lines {
 		pk, errPk := model.ToPokemon(line)
 		if errPk != nil {
-			log.Fatal(errPk)
+			log.Println(errPk)
 			continue
 		}
 
@@ -113,23 +98,4 @@ func readAllPokemon(filename string) (map[string]*model.Pokemon, error) {
 	}
 
 	return pokemonMap, nil
-}
-
-func readAllFileLines(filename string) ([]string, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		log.Fatal("Failed to open", err)
-		return nil, err
-	}
-	var lines []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, err
-	}
-
-	return lines, nil
 }

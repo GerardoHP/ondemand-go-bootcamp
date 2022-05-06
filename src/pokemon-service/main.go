@@ -13,7 +13,7 @@ import (
 
 // Starts the echo server with the available methods
 func main() {
-	config := config.GetInstance()
+	config := config.NewConfig()
 	fn := config.StorageFileName
 	r := registry.NewRegistry(fn)
 
