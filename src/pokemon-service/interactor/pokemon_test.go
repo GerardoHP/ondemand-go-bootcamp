@@ -85,15 +85,9 @@ func TestGetPokemonsErrors(t *testing.T) {
 		FindAllError: errors.New("some error"),
 	}
 
-	presenter := FakePresenter{
-		// Pokemons: []*entity.Pokemon{
-		// 	{ID: 1, Name: "test", Url: "url", Image: "image"},
-		// },
-	}
+	presenter := FakePresenter{}
 
-	client := FakeClient{
-		// response: resty.Response{},
-	}
+	client := FakeClient{}
 
 	interactor := NewPokemonInteractor(repo, presenter, client)
 	pks := []*entity.Pokemon{}
