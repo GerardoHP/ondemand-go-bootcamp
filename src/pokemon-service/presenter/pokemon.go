@@ -17,7 +17,7 @@ type Pokemon interface {
 }
 
 // Returns a new instance of PokemonPresenter
-func NewPokemonPresenter() Pokemon {
+func New() Pokemon {
 	return &pokemonPresenter{}
 }
 

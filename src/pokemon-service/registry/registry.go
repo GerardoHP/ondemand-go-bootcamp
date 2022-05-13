@@ -15,7 +15,7 @@ type Registry interface {
 }
 
 // Returns a new instance of Registry intreface
-func NewRegistry(fn string) Registry {
+func New(fn string) Registry {
 	return &registry{fileName: fn}
 }
 

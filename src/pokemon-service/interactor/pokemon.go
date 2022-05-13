@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/GerardoHP/ondemand-go-bootcamp/dto"
@@ -11,6 +12,7 @@ import (
 	"github.com/GerardoHP/ondemand-go-bootcamp/model"
 	"github.com/GerardoHP/ondemand-go-bootcamp/presenter"
 	"github.com/GerardoHP/ondemand-go-bootcamp/repository"
+
 	"github.com/go-resty/resty/v2"
 )
 
@@ -32,7 +34,7 @@ type Pokemon interface {
 }
 
 // Returns a new PokemonInteractor instance
-func NewPokemonInteractor(r repository.Pokemon, p presenter.Pokemon, c Client) Pokemon {
+func New(r repository.Pokemon, p presenter.Pokemon, c Client) Pokemon {
 	return &pokemonInteractor{PokemonRepository: r, PokemonPresenter: p, client: c}
 }
 
@@ -81,11 +83,11 @@ func getPokemonDetail(name string, c Client) (*entity.Pokemon, error) {
 		return nil, err
 	}
 
-	if resp.RawResponse.StatusCode == 404 {
+	if resp.RawResponse.StatusCode == http.StatusNotFound {
 		return nil, errors.New("Not Found")
 	}
 
-	if resp.RawResponse.StatusCode != 200 {
+	if resp.RawResponse.StatusCode != http.StatusOK {
 		return nil, errors.New("Other error")
 	}
 

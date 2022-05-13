@@ -7,15 +7,16 @@ import (
 	"github.com/GerardoHP/ondemand-go-bootcamp/config"
 	"github.com/GerardoHP/ondemand-go-bootcamp/registry"
 	"github.com/GerardoHP/ondemand-go-bootcamp/router"
+
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
 
 // Starts the echo server with the available methods
 func main() {
-	config := config.NewConfig()
+	config := config.New()
 	fn := config.StorageFileName
-	r := registry.NewRegistry(fn)
+	r := registry.New(fn)
 
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{

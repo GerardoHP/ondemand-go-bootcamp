@@ -23,7 +23,7 @@ type Pokemon interface {
 }
 
 // Gets a new instance of pokemon repository
-func NewPokemonRepository(fn string, f utils.File) Pokemon {
+func New(fn string, f utils.File) Pokemon {
 	if f == nil {
 		f = utils.NewFileUtil(fn)
 	}

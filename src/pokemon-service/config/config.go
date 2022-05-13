@@ -9,7 +9,7 @@ type config struct {
 var singleInstance *config
 
 // Gets a singleton of the configuration for the service
-func NewConfig() *config {
+func New() *config {
 	if singleInstance == nil {
 		singleInstance = &config{
 			Port:            "8080",

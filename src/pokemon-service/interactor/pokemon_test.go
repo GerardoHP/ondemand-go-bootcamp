@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/GerardoHP/ondemand-go-bootcamp/entity"
+
 	"github.com/go-resty/resty/v2"
 )
 
@@ -53,13 +54,13 @@ func (f FakeClient) Get(url string) (*resty.Response, error) {
 func TestGetPokemons(t *testing.T) {
 	repo := FakeRepository{
 		Pokemons: []*entity.Pokemon{
-			{ID: 1, Name: "test", Url: "url", Image: "image"},
+			getBasicPokemon(),
 		},
 	}
 
 	presenter := FakePresenter{
 		Pokemons: []*entity.Pokemon{
-			{ID: 1, Name: "test", Url: "url", Image: "image"},
+			getBasicPokemon(),
 		},
 	}
 
@@ -67,7 +68,7 @@ func TestGetPokemons(t *testing.T) {
 		response: resty.Response{},
 	}
 
-	interactor := NewPokemonInteractor(repo, presenter, client)
+	interactor := New(repo, presenter, client)
 	pks := []*entity.Pokemon{}
 	p, err := interactor.Get(pks)
 	if err != nil {
@@ -89,7 +90,7 @@ func TestGetPokemonsErrors(t *testing.T) {
 
 	client := FakeClient{}
 
-	interactor := NewPokemonInteractor(repo, presenter, client)
+	interactor := New(repo, presenter, client)
 	pks := []*entity.Pokemon{}
 	_, err := interactor.Get(pks)
 	if err == nil {
@@ -100,18 +101,18 @@ func TestGetPokemonsErrors(t *testing.T) {
 // Test to get a single pokemon
 func TestGetPokemon(t *testing.T) {
 	repo := FakeRepository{
-		Pokemon: &entity.Pokemon{ID: 1, Name: "test", Url: "url", Image: "image"},
+		Pokemon: getBasicPokemon(),
 	}
 
 	presenter := FakePresenter{
-		Pokemon: &entity.Pokemon{ID: 1, Name: "test", Url: "url", Image: "image"},
+		Pokemon: getBasicPokemon(),
 	}
 
 	client := FakeClient{
 		response: resty.Response{},
 	}
 
-	interactor := NewPokemonInteractor(repo, presenter, client)
+	interactor := New(repo, presenter, client)
 	pk := "pokemon"
 	p, err := interactor.GetPokemon(pk)
 	if err != nil {
@@ -126,22 +127,22 @@ func TestGetPokemon(t *testing.T) {
 // Test to get a single pokemon
 func TestGetPokemonDetail(t *testing.T) {
 	repo := FakeRepository{
-		AddedPokemon: &entity.Pokemon{ID: 1, Name: "test", Url: "url", Image: "image"},
+		AddedPokemon: getBasicPokemon(),
 	}
 
 	presenter := FakePresenter{
-		Pokemon: &entity.Pokemon{ID: 1, Name: "test", Url: "url", Image: "image"},
+		Pokemon: getBasicPokemon(),
 	}
 
 	client := FakeClient{
 		response: resty.Response{
 			RawResponse: &http.Response{
-				StatusCode: 200,
+				StatusCode: http.StatusOK,
 			},
 		},
 	}
 
-	interactor := NewPokemonInteractor(repo, presenter, client)
+	interactor := New(repo, presenter, client)
 	pk := "pokemon"
 	p, err := interactor.GetPokemon(pk)
 	if err != nil {
@@ -156,18 +157,18 @@ func TestGetPokemonDetail(t *testing.T) {
 // Test to get a single pokemon
 func TestGetPokemonDetailErrorOnServer(t *testing.T) {
 	repo := FakeRepository{
-		AddedPokemon: &entity.Pokemon{ID: 1, Name: "test", Url: "url", Image: "image"},
+		AddedPokemon: getBasicPokemon(),
 	}
 
 	presenter := FakePresenter{
-		Pokemon: &entity.Pokemon{ID: 1, Name: "test", Url: "url", Image: "image"},
+		Pokemon: getBasicPokemon(),
 	}
 
 	client := FakeClient{
 		responseError: errors.New("some error"),
 	}
 
-	interactor := NewPokemonInteractor(repo, presenter, client)
+	interactor := New(repo, presenter, client)
 	pk := "pokemon"
 	_, err := interactor.GetPokemon(pk)
 	if err == nil {
@@ -182,23 +183,28 @@ func TestGetPokemonDetailErrorOnServer(t *testing.T) {
 
 	client.responseError = nil
 	client.response = response
-	interactor = NewPokemonInteractor(repo, presenter, client)
+	interactor = New(repo, presenter, client)
 	_, err = interactor.GetPokemon(pk)
 	if err == nil {
 		t.Fatal("There should be an error")
 	}
 
 	client.response.RawResponse.StatusCode = 500
-	interactor = NewPokemonInteractor(repo, presenter, client)
+	interactor = New(repo, presenter, client)
 	_, err = interactor.GetPokemon(pk)
 	if err == nil {
 		t.Fatal("There should be an error")
 	}
 
 	repo.FindByNameError = errors.New("some error")
-	interactor = NewPokemonInteractor(repo, presenter, client)
+	interactor = New(repo, presenter, client)
 	_, err = interactor.GetPokemon(pk)
 	if err == nil {
 		t.Fatal("There should be an error")
 	}
+}
+
+// Returns a basic default pokemon
+func getBasicPokemon() *entity.Pokemon {
+	return &entity.Pokemon{ID: 1, Name: "test", Url: "url", Image: "image"}
 }

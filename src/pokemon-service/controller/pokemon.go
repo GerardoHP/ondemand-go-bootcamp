@@ -19,7 +19,7 @@ type Pokemon interface {
 }
 
 // Returns a new instance a PokemonController
-func NewPokemonController(pk interactor.Pokemon) Pokemon {
+func New(pk interactor.Pokemon) Pokemon {
 	return &pokemonController{pokemonInteractor: pk}
 }
 

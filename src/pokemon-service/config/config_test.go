@@ -7,7 +7,7 @@ import (
 // TestInitialValues calls NewConfig to the initial values,
 // checking rather if they are the correct ones or not.
 func TestInitialValues(t *testing.T) {
-	cfg := NewConfig()
+	cfg := New()
 
 	if cfg == nil {
 		t.Fatal("Config should't be null")

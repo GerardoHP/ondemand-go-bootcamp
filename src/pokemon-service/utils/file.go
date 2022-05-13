@@ -25,7 +25,7 @@ func NewFileUtil(fn string) File {
 func (f file) ReadAllFileLines() ([]string, error) {
 	file, err := os.Open(f.filename)
 	if err != nil {
-		log.Fatal("Failed to open", err)
+		log.Panic("Failed to open", err)
 		return nil, err
 	}
 	var lines []string

@@ -35,7 +35,7 @@ func TestFindAllPokemons(t *testing.T) {
 		appendLineToFile: nil,
 	}
 
-	repo := NewPokemonRepository("filelocation", fakeUtils)
+	repo := New("filelocation", fakeUtils)
 
 	var pk []*entity.Pokemon
 	pk, err := repo.FindAll(pk)
@@ -56,7 +56,7 @@ func TestReadingErrors(t *testing.T) {
 		readAllFiles:     errors.New("Random error"),
 		appendLineToFile: errors.New("Random error"),
 	}
-	repo := NewPokemonRepository("filelocation", fakeUtils)
+	repo := New("filelocation", fakeUtils)
 
 	var pk []*entity.Pokemon
 	_, err := repo.FindAll(pk)
@@ -82,7 +82,7 @@ func TestReadingErrors(t *testing.T) {
 	}
 
 	fakeUtils.readAllFiles = nil
-	repo = NewPokemonRepository("filelocation", fakeUtils)
+	repo = New("filelocation", fakeUtils)
 	_, err = repo.Add(&p)
 	if err == nil {
 		t.Fatal("There should be an error adding a pokemon on appending a file ")
@@ -95,7 +95,7 @@ func TestFindByName(t *testing.T) {
 		readAllFiles:     nil,
 		appendLineToFile: nil,
 	}
-	repo := NewPokemonRepository("filelocation", fakeUtils)
+	repo := New("filelocation", fakeUtils)
 
 	pk, _ := repo.FindByName("pikachu")
 	if pk == nil {
@@ -115,7 +115,7 @@ func TestAddingPokemon(t *testing.T) {
 		readAllFiles:     nil,
 		appendLineToFile: nil,
 	}
-	repo := NewPokemonRepository("location", fakeUtils)
+	repo := New("location", fakeUtils)
 
 	p := &entity.Pokemon{
 		ID:    1,
