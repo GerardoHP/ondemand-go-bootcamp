@@ -1,0 +1,32 @@
+.App{
+    
+}
+
+.PokemonContainer{
+    color: white;
+}
+
+.h-5{
+    height: 3% !important;
+}
+
+.h-90{
+    height: 90% !important;
+}
+
+.pokemon .card{
+    min-width: 275px;
+    max-width: 275px;
+}
+
+.card-deck{
+    display: flex;
+  flex-direction: column;
+    flex-flow: row wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.card-deck .card{
+    margin-left: 15px;
+}
