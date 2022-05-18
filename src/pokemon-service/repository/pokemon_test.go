@@ -24,6 +24,10 @@ func (f fileUtilsMock) AppendLineToFile(line string) error {
 	return f.appendLineToFile
 }
 
+func (f fileUtilsMock) ReadAllFileConcurrent(n int, even bool) ([]string, error) {
+	return nil, nil
+}
+
 // Test that the find all pokemons works as expected
 func TestFindAllPokemons(t *testing.T) {
 	fakeUtils := fileUtilsMock{

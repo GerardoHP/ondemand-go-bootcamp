@@ -16,6 +16,7 @@ type pokemonController struct {
 type Pokemon interface {
 	GetPokemons(c Context) error
 	GetPokemon(c Context) error
+	GetPokemonsEvenOrOdd(c Context) error
 }
 
 // Returns a new instance a PokemonController
@@ -42,6 +43,17 @@ func (pc *pokemonController) GetPokemon(c Context) error {
 		return c.JSON(http.StatusNotFound, nil)
 	}
 
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, p)
+}
+
+// Returns all the pokemons from the interactor
+func (pc *pokemonController) GetPokemonsEvenOrOdd(c Context) error {
+	var p []*entity.Pokemon
+	p, err := pc.pokemonInteractor.GetEvenOrOdd(p, 5, true)
 	if err != nil {
 		return err
 	}
