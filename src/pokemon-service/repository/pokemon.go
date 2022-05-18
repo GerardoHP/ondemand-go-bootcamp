@@ -20,7 +20,7 @@ type Pokemon interface {
 	FindAll(p []*entity.Pokemon) ([]*entity.Pokemon, error)
 	FindByName(pkName string) (*entity.Pokemon, error)
 	Add(pk *entity.Pokemon) (*entity.Pokemon, error)
-	FindAllConcurrent(p []*entity.Pokemon, n int, even bool) ([]*entity.Pokemon, error)
+	FindAllConcurrent(p []*entity.Pokemon, even bool, items, items_per_worker int) ([]*entity.Pokemon, error)
 }
 
 // Gets a new instance of pokemon repository
@@ -80,8 +80,8 @@ func (repo *pokemonRepository) Add(pk *entity.Pokemon) (*entity.Pokemon, error) 
 	return pk, nil
 }
 
-func (repo *pokemonRepository) FindAllConcurrent(p []*entity.Pokemon, n int, even bool) ([]*entity.Pokemon, error) {
-	pokemonsMap, err := readAllPokemonConcurrent(n, even, repo.fileUtils)
+func (repo *pokemonRepository) FindAllConcurrent(p []*entity.Pokemon, even bool, items, items_per_worker int) ([]*entity.Pokemon, error) {
+	pokemonsMap, err := readAllPokemonConcurrent(even, repo.fileUtils, items, items_per_worker)
 	if err != nil {
 		return nil, err
 	}
@@ -109,8 +109,8 @@ func linesToPokemons(lines []string) (map[string]*model.Pokemon, error) {
 	return pokemonMap, nil
 }
 
-func readAllPokemonConcurrent(n int, even bool, fUtils utils.File) (map[string]*model.Pokemon, error) {
-	lines, err := fUtils.ReadAllFileConcurrent(n, even)
+func readAllPokemonConcurrent(even bool, fUtils utils.File, items, items_per_worker int) (map[string]*model.Pokemon, error) {
+	lines, err := fUtils.ReadAllFileConcurrent(even, items, items_per_worker)
 	if err != nil {
 		return nil, err
 	}

@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/GerardoHP/ondemand-go-bootcamp/entity"
 	"github.com/GerardoHP/ondemand-go-bootcamp/interactor"
@@ -53,10 +55,38 @@ func (pc *pokemonController) GetPokemon(c Context) error {
 // Returns all the pokemons from the interactor
 func (pc *pokemonController) GetPokemonsEvenOrOdd(c Context) error {
 	var p []*entity.Pokemon
-	p, err := pc.pokemonInteractor.GetEvenOrOdd(p, 5, true)
+
+	even, err := getIsEvenOrOdd(c.QueryParam("type"))
+	if err != nil {
+		return err
+	}
+
+	items, err := strconv.Atoi(c.QueryParam("items"))
+	if err != nil {
+		return err
+	}
+
+	items_per_worker, err := strconv.Atoi(c.QueryParam("items_per_worker"))
+	if err != nil {
+		return err
+	}
+
+	p, err = pc.pokemonInteractor.GetEvenOrOdd(p, even, items, items_per_worker)
 	if err != nil {
 		return err
 	}
 
 	return c.JSON(http.StatusOK, p)
+}
+
+// Gets if a string is even or odd
+func getIsEvenOrOdd(str string) (bool, error) {
+	switch str {
+	case "even":
+		return true, nil
+	case "odd":
+		return false, nil
+	default:
+		return false, errors.New("string not supported")
+	}
 }

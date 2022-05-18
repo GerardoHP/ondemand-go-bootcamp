@@ -17,7 +17,7 @@ type file struct {
 type File interface {
 	ReadAllFileLines() ([]string, error)
 	AppendLineToFile(string) error
-	ReadAllFileConcurrent(int, bool) ([]string, error)
+	ReadAllFileConcurrent(even bool, items, items_per_worker int) ([]string, error)
 }
 
 // Gets a new instance of the file utils
@@ -68,9 +68,9 @@ func (f file) AppendLineToFile(line string) error {
 	return nil
 }
 
-func (f file) ReadAllFileConcurrent(n int, even bool) ([]string, error) {
-	if n == 0 {
-		n = 1
+func (f file) ReadAllFileConcurrent(even bool, items, items_per_worker int) ([]string, error) {
+	if items_per_worker == 0 {
+		items_per_worker = 1
 	}
 
 	wg := sync.WaitGroup{}
@@ -84,12 +84,11 @@ func (f file) ReadAllFileConcurrent(n int, even bool) ([]string, error) {
 
 	var lines []string
 	scanner := bufio.NewScanner(file)
-	wg.Add(n)
-	for i := 0; i < n; i++ {
+	wg.Add(items_per_worker)
+	for i := 0; i < items_per_worker; i++ {
 		go readLine(scanner, even, ch, &wg, &mt, i)
 	}
 
-	close(ch)
 	for n := range ch {
 		lines = append(lines, n)
 	}
@@ -122,5 +121,6 @@ func readLine(s *bufio.Scanner, even bool, c chan<- string, wg *sync.WaitGroup, 
 		}
 	}
 
+	close(c)
 	wg.Done()
 }

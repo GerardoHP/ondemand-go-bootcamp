@@ -24,7 +24,7 @@ func (f fileUtilsMock) AppendLineToFile(line string) error {
 	return f.appendLineToFile
 }
 
-func (f fileUtilsMock) ReadAllFileConcurrent(n int, even bool) ([]string, error) {
+func (f fileUtilsMock) ReadAllFileConcurrent(even bool, items, items_per_worker int) ([]string, error) {
 	return nil, nil
 }
 
