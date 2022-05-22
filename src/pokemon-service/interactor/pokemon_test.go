@@ -31,7 +31,7 @@ func (f FakeRepository) Add(pk *entity.Pokemon) (*entity.Pokemon, error) {
 	return f.AddedPokemon, f.AddError
 }
 
-func (f FakeRepository) FindAllConcurrent(p []*entity.Pokemon, n int, even bool) ([]*entity.Pokemon, error) {
+func (f FakeRepository) FindAllConcurrent(p []*entity.Pokemon, even bool, n int, n2 int) ([]*entity.Pokemon, error) {
 	return nil, nil
 }
 

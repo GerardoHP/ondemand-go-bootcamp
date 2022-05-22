@@ -69,12 +69,10 @@ func (f file) AppendLineToFile(line string) error {
 }
 
 func (f file) ReadAllFileConcurrent(even bool, items, items_per_worker int) ([]string, error) {
-	if items_per_worker == 0 {
-		items_per_worker = 1
-	}
-
+	const workers = 1
 	wg := sync.WaitGroup{}
-	ch := make(chan string)
+	linesCh := make(chan string)
+	pokemonCount := make(chan int)
 	mt := sync.RWMutex{}
 	file, err := os.Open(f.filename)
 	if err != nil {
@@ -84,15 +82,13 @@ func (f file) ReadAllFileConcurrent(even bool, items, items_per_worker int) ([]s
 
 	var lines []string
 	scanner := bufio.NewScanner(file)
-	wg.Add(items_per_worker)
-	for i := 0; i < items_per_worker; i++ {
-		go readLine(scanner, even, ch, &wg, &mt, i)
+	wg.Add(workers)
+	for i := 0; i < workers; i++ {
+		go readLine(scanner, even, items, items_per_worker, linesCh, pokemonCount, &wg, &mt)
 	}
 
-	for n := range ch {
-		lines = append(lines, n)
-	}
-
+	wg.Add(1)
+	go coordinateChan(&lines, &wg, linesCh, pokemonCount)
 	if err = scanner.Err(); err != nil {
 		return nil, err
 	}
@@ -101,14 +97,24 @@ func (f file) ReadAllFileConcurrent(even bool, items, items_per_worker int) ([]s
 	return lines, nil
 }
 
-func readLine(s *bufio.Scanner, even bool, c chan<- string, wg *sync.WaitGroup, mt *sync.RWMutex, routineId int) {
-	print(routineId)
+func coordinateChan(lines *[]string, wg *sync.WaitGroup, linesCh <-chan string, pokemonCount chan<- int) {
+	defer wg.Done()
+	for line := range linesCh {
+		*lines = append(*lines, line)
+		pokemonCount <- len(*lines)
+	}
+
+	close(pokemonCount)
+}
+
+func readLine(s *bufio.Scanner, even bool, items, items_per_worker int, linesCh chan<- string, pokemonCount <-chan int, wg *sync.WaitGroup, mt *sync.RWMutex) {
+	defer wg.Done()
+	counter := 0
 	for s.Scan() {
 		mt.RLock()
 		line := s.Text()
 		mt.RUnlock()
 		lineDesc := strings.Split(line, ",")
-
 		id, err := strconv.Atoi(lineDesc[0])
 		if err != nil {
 			log.Print("failed to convert id")
@@ -116,11 +122,15 @@ func readLine(s *bufio.Scanner, even bool, c chan<- string, wg *sync.WaitGroup, 
 		}
 
 		isEven := id%2 == 0
+		nPok := <-pokemonCount
 		if isEven == even {
-			c <- line
+			linesCh <- line
+			counter++
+			if counter == items_per_worker || nPok > items {
+				break
+			}
 		}
 	}
 
-	close(c)
-	wg.Done()
+	close(linesCh)
 }
