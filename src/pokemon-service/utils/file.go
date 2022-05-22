@@ -2,6 +2,8 @@ package utils
 
 import (
 	"bufio"
+	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -69,28 +71,34 @@ func (f file) AppendLineToFile(line string) error {
 }
 
 func (f file) ReadAllFileConcurrent(even bool, items, items_per_worker int) ([]string, error) {
-	const workers = 2
+	const workers = 5
 	wg := sync.WaitGroup{}
 	linesCh := make(chan string)
 	var processedLines []string
 	mt := sync.Mutex{}
-	wg.Add(2)
-	for i := 0; i < 2; i++ {
-		go processLines(linesCh, &processedLines, &wg, &mt, even, items, items_per_worker)
+	context, cancel := context.WithCancel(context.Background())
+	wg.Add(workers)
+	for i := 0; i < workers; i++ {
+		go processLines(linesCh, &processedLines, &wg, &mt, even, items, items_per_worker, i, cancel)
 	}
 
 	wg.Add(1)
-	go processFile(f.filename, &wg, linesCh)
+	go processFile(f.filename, &wg, linesCh, context)
 
 	wg.Wait()
+	cancel()
 	return processedLines, nil
 }
 
-func processFile(fileName string, wg *sync.WaitGroup, lines chan<- string) {
+func processFile(fileName string, wg *sync.WaitGroup, lines chan<- string, ctx context.Context) {
 	defer wg.Done()
 	file, _ := os.Open(fileName)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
+		if ctx.Err() != nil {
+			break
+		}
+
 		lines <- scanner.Text()
 	}
 	// if err = scanner.Err(); err != nil {
@@ -99,10 +107,11 @@ func processFile(fileName string, wg *sync.WaitGroup, lines chan<- string) {
 	close(lines)
 }
 
-func processLines(lines <-chan string, processedLines *[]string, wg *sync.WaitGroup, mt *sync.Mutex, even bool, items, items_per_worker int) {
+func processLines(lines <-chan string, processedLines *[]string, wg *sync.WaitGroup, mt *sync.Mutex, even bool, items, items_per_worker, worker int, cancel context.CancelFunc) {
 	defer wg.Done()
 	counter := 0
 	for line := range lines {
+		fmt.Println("Processing line, ", line, ", from worker ", worker)
 		args := strings.Split(line, ",")
 		id, err := strconv.Atoi(args[0])
 		if err != nil {
@@ -114,8 +123,15 @@ func processLines(lines <-chan string, processedLines *[]string, wg *sync.WaitGr
 			mt.Lock()
 			currentCount := len(*processedLines)
 			mt.Unlock()
-			if counter >= items_per_worker || currentCount >= items {
-				continue
+			if currentCount >= items {
+				fmt.Println("Cancelling work from work ", worker, ", worked ", counter, " items, reached ", currentCount)
+				cancel()
+				break
+			}
+
+			if counter >= items_per_worker {
+				fmt.Println("Work completed for worker ", worker, ", worked ", counter, " items, reached ", currentCount)
+				break
 			}
 
 			mt.Lock()
