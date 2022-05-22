@@ -3,6 +3,7 @@ package utils
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -70,44 +71,68 @@ func (f file) AppendLineToFile(line string) error {
 	return nil
 }
 
+// Reads a file with a pool of parallel workes, 5 by default
 func (f file) ReadAllFileConcurrent(even bool, items, items_per_worker int) ([]string, error) {
 	const workers = 5
 	wg := sync.WaitGroup{}
 	linesCh := make(chan string)
+	errorsCh := make(chan string)
 	var processedLines []string
 	mt := sync.Mutex{}
 	context, cancel := context.WithCancel(context.Background())
 	wg.Add(workers)
 	for i := 0; i < workers; i++ {
-		go processLines(linesCh, &processedLines, &wg, &mt, even, items, items_per_worker, i, cancel)
+		go processLines(linesCh, errorsCh, &processedLines, &wg, &mt, even, items, items_per_worker, i, cancel)
 	}
 
 	wg.Add(1)
-	go processFile(f.filename, &wg, linesCh, context)
+	go processFile(f.filename, &wg, linesCh, errorsCh, context)
+
+	wg.Add(1)
+	var err error
+	go func(errorCh, lines chan string, wg *sync.WaitGroup) {
+		defer wg.Done()
+		if stringErr, ok := <-errorCh; ok && stringErr != "" {
+			err = errors.New(stringErr)
+			close(errorCh)
+			close(linesCh)
+		}
+	}(errorsCh, linesCh, &wg)
 
 	wg.Wait()
 	cancel()
-	return processedLines, nil
+	return processedLines, err
 }
 
-func processFile(fileName string, wg *sync.WaitGroup, lines chan<- string, ctx context.Context) {
+// Process the file from start to end unless the routine gets cancelled
+func processFile(fileName string, wg *sync.WaitGroup, lines, errors chan<- string, ctx context.Context) {
 	defer wg.Done()
-	file, _ := os.Open(fileName)
+	file, err := os.Open(fileName)
+	if err != nil {
+		errors <- err.Error()
+		return
+	}
+
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		if ctx.Err() != nil {
+			errors <- ""
 			break
 		}
 
 		lines <- scanner.Text()
 	}
-	// if err = scanner.Err(); err != nil {
-	// 	return nil, err
-	// }
+
+	if err = scanner.Err(); err != nil {
+		errors <- err.Error()
+		return
+	}
+
 	close(lines)
 }
 
-func processLines(lines <-chan string, processedLines *[]string, wg *sync.WaitGroup, mt *sync.Mutex, even bool, items, items_per_worker, worker int, cancel context.CancelFunc) {
+// Worker that process the lines
+func processLines(lines <-chan string, errors chan<- string, processedLines *[]string, wg *sync.WaitGroup, mt *sync.Mutex, even bool, items, items_per_worker, worker int, cancel context.CancelFunc) {
 	defer wg.Done()
 	counter := 0
 	for line := range lines {
@@ -115,14 +140,16 @@ func processLines(lines <-chan string, processedLines *[]string, wg *sync.WaitGr
 		args := strings.Split(line, ",")
 		id, err := strconv.Atoi(args[0])
 		if err != nil {
-			log.Print("error converting id: ", args[0])
+			errors <- "error converting id"
 		}
 
 		isEven := id%2 == 0
 		if isEven == even {
 			mt.Lock()
+			*processedLines = append(*processedLines, line)
 			currentCount := len(*processedLines)
 			mt.Unlock()
+			counter++
 			if currentCount >= items {
 				fmt.Println("Cancelling work from work ", worker, ", worked ", counter, " items, reached ", currentCount)
 				cancel()
@@ -130,14 +157,13 @@ func processLines(lines <-chan string, processedLines *[]string, wg *sync.WaitGr
 			}
 
 			if counter >= items_per_worker {
+				if currentCount < items {
+					continue
+				}
+
 				fmt.Println("Work completed for worker ", worker, ", worked ", counter, " items, reached ", currentCount)
 				break
 			}
-
-			mt.Lock()
-			*processedLines = append(*processedLines, line)
-			mt.Unlock()
-			counter++
 		}
 	}
 }
