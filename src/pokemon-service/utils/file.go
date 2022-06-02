@@ -4,9 +4,7 @@ import (
 	"bufio"
 	"context"
 	"errors"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -31,8 +29,9 @@ func New(fn string) File {
 // Read all the lines in a file
 func (f file) ReadAllFileLines() ([]string, error) {
 	file, err := os.Open(f.filename)
+	logUtils := getInstance()
 	if err != nil {
-		log.Panic("Failed to open", err)
+		logUtils.errorLogger.Println(err)
 		return nil, err
 	}
 
@@ -72,7 +71,7 @@ func (f file) AppendLineToFile(line string) error {
 }
 
 // Reads a file with a pool of parallel workes, 5 by default
-func (f file) ReadAllFileConcurrent(even bool, items, items_per_worker int) ([]string, error) {
+func (f file) ReadAllFileConcurrent(even bool, items, itemsPerWorker int) ([]string, error) {
 	const workers = 5
 	wg := sync.WaitGroup{}
 	linesCh := make(chan string)
@@ -82,7 +81,7 @@ func (f file) ReadAllFileConcurrent(even bool, items, items_per_worker int) ([]s
 	context, cancel := context.WithCancel(context.Background())
 	wg.Add(workers)
 	for i := 0; i < workers; i++ {
-		go processLines(linesCh, errorsCh, &processedLines, &wg, &mt, even, items, items_per_worker, i, cancel)
+		go processLines(linesCh, errorsCh, &processedLines, &wg, &mt, even, items, itemsPerWorker, i, cancel)
 	}
 
 	wg.Add(1)
@@ -132,11 +131,12 @@ func processFile(fileName string, wg *sync.WaitGroup, lines, errors chan<- strin
 }
 
 // Worker that process the lines
-func processLines(lines <-chan string, errors chan<- string, processedLines *[]string, wg *sync.WaitGroup, mt *sync.Mutex, even bool, items, items_per_worker, worker int, cancel context.CancelFunc) {
+func processLines(lines <-chan string, errors chan<- string, processedLines *[]string, wg *sync.WaitGroup, mt *sync.Mutex, even bool, items, itemsPerWorker, worker int, cancel context.CancelFunc) {
 	defer wg.Done()
 	counter := 0
+	logUtils := getInstance()
 	for line := range lines {
-		fmt.Println("Processing line, ", line, ", from worker ", worker)
+		logUtils.infoLogger.Println("Processing line, ", line, ", from worker ", worker)
 		args := strings.Split(line, ",")
 		id, err := strconv.Atoi(args[0])
 		if err != nil {
@@ -151,17 +151,17 @@ func processLines(lines <-chan string, errors chan<- string, processedLines *[]s
 			mt.Unlock()
 			counter++
 			if currentCount >= items {
-				fmt.Println("Cancelling work from work ", worker, ", worked ", counter, " items, reached ", currentCount)
+				logUtils.infoLogger.Println("Cancelling work from work ", worker, ", worked ", counter, " items, reached ", currentCount)
 				cancel()
 				break
 			}
 
-			if counter >= items_per_worker {
+			if counter >= itemsPerWorker {
 				if currentCount < items {
 					continue
 				}
 
-				fmt.Println("Work completed for worker ", worker, ", worked ", counter, " items, reached ", currentCount)
+				logUtils.infoLogger.Println("Work completed for worker ", worker, ", worked ", counter, " items, reached ", currentCount)
 				break
 			}
 		}

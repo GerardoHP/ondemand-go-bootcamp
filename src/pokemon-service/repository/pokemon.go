@@ -80,6 +80,7 @@ func (repo *pokemonRepository) Add(pk *entity.Pokemon) (*entity.Pokemon, error) 
 	return pk, nil
 }
 
+// Gets all the pokemons in a concurrent function
 func (repo *pokemonRepository) FindAllConcurrent(p []*entity.Pokemon, even bool, items, items_per_worker int) ([]*entity.Pokemon, error) {
 	pokemonsMap, err := readAllPokemonConcurrent(even, repo.fileUtils, items, items_per_worker)
 	if err != nil {
