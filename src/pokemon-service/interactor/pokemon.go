@@ -31,6 +31,7 @@ type pokemonInteractor struct {
 type Pokemon interface {
 	Get(p []*entity.Pokemon) ([]*entity.Pokemon, error)
 	GetPokemon(p string) (*entity.Pokemon, error)
+	GetEvenOrOdd(p []*entity.Pokemon, even bool, items, items_per_worker int) ([]*entity.Pokemon, error)
 }
 
 // Returns a new PokemonInteractor instance
@@ -68,6 +69,16 @@ func (pk *pokemonInteractor) GetPokemon(p string) (*entity.Pokemon, error) {
 	}
 
 	return pokemon, nil
+}
+
+// Gets all the pokemons found in the repository that are even or odd
+func (pk *pokemonInteractor) GetEvenOrOdd(p []*entity.Pokemon, even bool, items, items_per_worker int) ([]*entity.Pokemon, error) {
+	p, err := pk.PokemonRepository.FindAllConcurrent(p, even, items, items_per_worker)
+	if err != nil {
+		return nil, err
+	}
+
+	return pk.PokemonPresenter.ResponsePresenter(p), nil
 }
 
 // Gets a pokemon detail from a service

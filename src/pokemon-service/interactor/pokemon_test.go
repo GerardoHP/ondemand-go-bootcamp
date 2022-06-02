@@ -31,6 +31,10 @@ func (f FakeRepository) Add(pk *entity.Pokemon) (*entity.Pokemon, error) {
 	return f.AddedPokemon, f.AddError
 }
 
+func (f FakeRepository) FindAllConcurrent(p []*entity.Pokemon, even bool, n int, n2 int) ([]*entity.Pokemon, error) {
+	return nil, nil
+}
+
 type FakePresenter struct {
 	Pokemons []*entity.Pokemon
 	Pokemon  *entity.Pokemon
